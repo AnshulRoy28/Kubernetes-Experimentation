@@ -157,7 +157,7 @@ kubectl apply -f nodeport.yaml
 # Access from any machine on the network:
 curl http://192.168.1.2:31111
 ```
-!(assets/week1/rancher-demo.png)
+![](assets/week1/rancher-demo.png)
 ![kubectl get services — NodePort exposed on 31111](assets/week1/get_Services.png)
 
 ![All pods running — nginx + hello-world across the cluster](assets/week1/all-pods.png)
