@@ -43,10 +43,7 @@ curl -sfL https://get.k3s.io | sh -
 sudo kubectl get nodes
 ```
 
-```
-NAME          STATUS   ROLES                  AGE   VERSION
-raspberrypi   Ready    control-plane,master   ...   v1.xx.x+k3s1
-```
+![kubectl get nodes](assets/week1/get_Nodes.png)
 
 ---
 
@@ -79,6 +76,8 @@ spec:
 kubectl apply -f firstapp.yaml
 kubectl get pods
 ```
+
+![kubectl get pods — 6 hello-world replicas running](assets/week1/get_Pods.png)
 
 That led to my first big networking realization — **the IPs shown by Kubernetes are overlay network addresses that exist only inside the cluster.** To reach them from the outside, you need a Service.
 
@@ -132,6 +131,8 @@ kubectl apply -f nodeport.yaml
 # Access from any machine on the network:
 curl http://192.168.1.2:31111
 ```
+
+![kubectl get services — NodePort exposed on 31111](assets/week1/get_Services.png)
 
 ---
 
