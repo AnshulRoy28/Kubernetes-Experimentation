@@ -15,6 +15,7 @@
 - [First Workload — Nginx](#-first-workload--nginx)
 - [Service Exposure & Scaling](#-service-exposure--scaling)
 - [Stress Testing](#-stress-testing)
+- [kubectl Commands Reference](#-kubectl-commands-reference)
 - [What I Learned](#-what-i-learned)
 - [Next Steps](#-next-steps)
 
@@ -75,11 +76,36 @@ spec:
 ```bash
 kubectl apply -f firstapp.yaml
 kubectl get pods
+kubectl get pods -l app=nginx   # Filter for just nginx pods
 ```
 
-![kubectl get pods — 6 hello-world replicas running](assets/week1/get_Pods.png)
+![kubectl get pods — nginx replicas running](assets/week1/first-app-pods.png)
 
 That led to my first big networking realization — **the IPs shown by Kubernetes are overlay network addresses that exist only inside the cluster.** To reach them from the outside, you need a Service.
+
+**[`nginx-nodeport.yaml`](nginx-nodeport.yaml)** — Expose nginx on port `30080`:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: nginx
+  ports:
+    - port: 80
+      targetPort: web
+      nodePort: 30080
+```
+
+```bash
+kubectl apply -f nginx-nodeport.yaml
+
+# Access from any machine on the network:
+curl http://192.168.1.2:30080
+```
 
 ---
 
@@ -133,6 +159,8 @@ curl http://192.168.1.2:31111
 ```
 
 ![kubectl get services — NodePort exposed on 31111](assets/week1/get_Services.png)
+
+![All pods running — nginx + hello-world across the cluster](assets/week1/all-pods.png)
 
 ---
 
@@ -189,6 +217,51 @@ python multithread.py
 
 ---
 
+## 📋 kubectl Commands Reference
+
+All the commands I used during Week 1, organized by category:
+
+### Cluster & Node Management
+
+| Command | Description |
+|---------|-------------|
+| `sudo kubectl get nodes` | List all nodes in the cluster |
+| `kubectl cluster-info` | Show cluster endpoint details |
+
+### Deployments
+
+| Command | Description |
+|---------|-------------|
+| `kubectl apply -f <file>.yaml` | Create or update resources from a YAML file |
+| `kubectl get deployments` | List all deployments |
+| `kubectl delete deployment <name>` | Delete a deployment and its pods |
+
+### Pods
+
+| Command | Description |
+|---------|-------------|
+| `kubectl get pods` | List all pods in the default namespace |
+| `kubectl get pods -l app=<label>` | Filter pods by label selector |
+| `kubectl get pods -o wide` | List pods with extra details (IP, node, image) |
+| `kubectl get pods --selector=app=<label>` | Alternative label filter syntax |
+
+### Services & Networking
+
+| Command | Description |
+|---------|-------------|
+| `kubectl get services` | List all services |
+| `kubectl delete service <name>` | Delete a service |
+| `curl http://<node-ip>:<nodePort>` | Access a NodePort service externally |
+
+### Troubleshooting
+
+| Command | Description |
+|---------|-------------|
+| `kubectl describe pod <pod-name>` | Detailed pod info and events |
+| `kubectl logs <pod-name>` | View container logs |
+
+---
+
 ## 🧠 What I Learned
 
 1. **Overlay networks are invisible** — Kubernetes pod IPs exist only inside the cluster. Understanding this was the first real "aha" moment.
@@ -197,6 +270,7 @@ python multithread.py
 4. **NodePort is the simplest external access** — Perfect for local network testing and learning.
 5. **Failures under load = capacity, not bugs** — The Pi has real hardware limits, and seeing them taught me more than any tutorial.
 6. **K3s is the right tool for learning** — Lightweight enough for a Pi, but fully Kubernetes-compliant.
+7. **Label selectors are essential** — Using `-l app=<name>` to filter pods by deployment is critical when running multiple workloads.
 
 ---
 
